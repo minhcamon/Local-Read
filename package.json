@@ -1,0 +1,26 @@
+{
+  "name": "localread",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LocalRead — Personal Reading System on Laptop",
+  "scripts": {
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build:backend": "npm --prefix backend run build",
+    "build:frontend": "npm --prefix frontend run build",
+    "lint": "npm --prefix backend run lint && npm --prefix frontend run lint",
+    "test": "npm --prefix backend run test"
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "keywords": [
+    "pdf-reader",
+    "personal-reading-system",
+    "express",
+    "react"
+  ],
+  "author": "",
+  "license": "ISC"
+}

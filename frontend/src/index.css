@@ -1,0 +1,79 @@
+/* Reading Design System & Themes for LocalRead */
+
+:root {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Light Theme (Default Day Reading) */
+body.theme-light {
+  --bg-app: #F8F9FA;
+  --bg-surface: #FFFFFF;
+  --bg-toolbar: rgba(255, 255, 255, 0.85);
+  --border-color: #E2E8F0;
+  --text-primary: #1E293B;
+  --text-secondary: #64748B;
+  --accent-color: #2563EB;
+  --accent-hover: #1D4ED8;
+  --highlight-color: rgba(250, 204, 21, 0.35);
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Sepia Theme (Warm Parchment / Long Reading) */
+body.theme-sepia {
+  --bg-app: #F4E8C1;
+  --bg-surface: #FBF0D9;
+  --bg-toolbar: rgba(251, 240, 217, 0.85);
+  --border-color: #E5D5B3;
+  --text-primary: #433422;
+  --text-secondary: #78644E;
+  --accent-color: #B45309;
+  --accent-hover: #92400E;
+  --highlight-color: rgba(245, 158, 11, 0.35);
+  --card-shadow: 0 4px 12px rgba(67, 52, 34, 0.08);
+}
+
+/* Dark Theme (Night Reading / Low Emission) */
+body.theme-dark {
+  --bg-app: #121212;
+  --bg-surface: #1E1E1E;
+  --bg-toolbar: rgba(30, 30, 30, 0.85);
+  --border-color: #334155;
+  --text-primary: #E2E8F0;
+  --text-secondary: #94A3B8;
+  --accent-color: #38BDF8;
+  --accent-hover: #0284C7;
+  --highlight-color: rgba(234, 179, 8, 0.35);
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  min-height: 100vh;
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
