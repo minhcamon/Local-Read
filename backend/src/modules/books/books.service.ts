@@ -1,25 +1,28 @@
 import crypto from 'node:crypto';
-import type { BookEntity, DocumentEntity } from '../../database/schema/index.js';
 import { booksRepository, BooksRepository } from './books.repository.js';
-import { db, DatabaseClient } from '../../database/client.js';
 import { documentStorage, LocalFileStorageService } from '../../storage/local-file-storage.service.js';
 import { NotFoundError, BadRequestError } from '../../common/errors/AppError.js';
 import type { BookSummaryDto, ImportBookDto } from './dto/index.js';
+import type { ReadingLocation } from '../../database/schema/index.js';
 
 export class BooksService {
   constructor(
     private readonly repo: BooksRepository = booksRepository,
-    private readonly storage: LocalFileStorageService = documentStorage,
-    private readonly client: DatabaseClient = db
+    private readonly storage: LocalFileStorageService = documentStorage
   ) {}
 
   public async getAllBooks(): Promise<BookSummaryDto[]> {
-    const books = await this.repo.findAll();
-    return books.map((book) => {
-      // Find associated documents
-      const docs = Array.from(this.client.documents.values()).filter((d) => d.bookId === book.id);
-      const firstDoc = docs[0];
-      const progress = firstDoc ? this.client.progress.get(firstDoc.id) : null;
+    const bookList = await this.repo.findAll();
+    return bookList.map((book: any) => {
+      const primaryDoc = book.documents?.[0];
+      const progress = primaryDoc?.progress;
+
+      let parsedLocation: ReadingLocation | null = null;
+      if (progress?.location) {
+        parsedLocation = typeof progress.location === 'string'
+          ? JSON.parse(progress.location)
+          : (progress.location as ReadingLocation);
+      }
 
       return {
         id: book.id,
@@ -29,29 +32,44 @@ export class BooksService {
         coverUrl: book.coverUrl,
         createdAt: book.createdAt,
         updatedAt: book.updatedAt,
-        documentCount: docs.length,
-        lastProgress: progress
+        documentCount: book.documents?.length || 0,
+        primaryDocumentId: primaryDoc?.id || null,
+        lastProgress: progress && parsedLocation
           ? {
               percentage: progress.percentage,
               updatedAt: progress.updatedAt,
-              location: progress.location,
+              location: parsedLocation,
             }
           : null,
       };
     });
   }
 
-  public async getBookById(id: string): Promise<BookEntity & { documents: DocumentEntity[] }> {
+  public async getBookById(id: string) {
     const book = await this.repo.findById(id);
     if (!book) {
       throw new NotFoundError(`Book with ID "${id}" not found`);
     }
 
-    const documents = Array.from(this.client.documents.values()).filter((d) => d.bookId === book.id);
-    return { ...book, documents };
+    return {
+      id: book.id,
+      title: book.title,
+      author: book.author,
+      description: book.description,
+      coverUrl: book.coverUrl,
+      createdAt: book.createdAt,
+      updatedAt: book.updatedAt,
+      documents: (book.documents || []).map((doc: any) => ({
+        id: doc.id,
+        bookId: doc.bookId,
+        format: doc.format,
+        fileSizeBytes: doc.fileSizeBytes,
+        createdAt: doc.createdAt,
+      })),
+    };
   }
 
-  public async importBook(dto: ImportBookDto, fileBuffer: Buffer, originalFilename: string): Promise<BookEntity> {
+  public async importBook(dto: ImportBookDto, fileBuffer: Buffer, originalFilename: string) {
     if (!fileBuffer || fileBuffer.length === 0) {
       throw new BadRequestError('A valid PDF file buffer is required for import');
     }
@@ -63,32 +81,46 @@ export class BooksService {
     const bookId = crypto.randomUUID();
     const docId = crypto.randomUUID();
 
-    // 2. Create Book entity (Single source of metadata)
-    const book: BookEntity = {
-      id: bookId,
-      title: dto.title.trim(),
-      author: dto.author?.trim() || null,
-      description: dto.description?.trim() || null,
-      coverUrl: null,
-      createdAt: now,
-      updatedAt: now,
+    // 2. Title fallback to sanitized filename without extension
+    const defaultTitle = originalFilename.replace(/\.pdf$/i, '').replace(/[-_]/g, ' ');
+    const title = (dto.title && dto.title.trim()) ? dto.title.trim() : defaultTitle;
+
+    // 3. Atomically create Book & Document via Drizzle transaction
+    const { book, document } = await this.repo.createWithDocument({
+      book: {
+        id: bookId,
+        title,
+        author: dto.author?.trim() || null,
+        description: dto.description?.trim() || null,
+        coverUrl: null,
+        createdAt: now,
+        updatedAt: now,
+      },
+      document: {
+        id: docId,
+        bookId,
+        format: 'PDF',
+        filePath: storedFile.relativePath,
+        fileSizeBytes: storedFile.sizeBytes,
+        checksum: null,
+        createdAt: now,
+      },
+    });
+
+    return {
+      id: book.id,
+      title: book.title,
+      author: book.author,
+      description: book.description,
+      coverUrl: book.coverUrl,
+      createdAt: book.createdAt,
+      updatedAt: book.updatedAt,
+      document: {
+        id: document.id,
+        format: document.format,
+        fileSizeBytes: document.fileSizeBytes,
+      },
     };
-
-    // 3. Create Document entity (Specific PDF file bound to Book)
-    const document: DocumentEntity = {
-      id: docId,
-      bookId,
-      format: 'PDF',
-      filePath: storedFile.relativePath,
-      fileSizeBytes: storedFile.sizeBytes,
-      checksum: null,
-      createdAt: now,
-    };
-
-    await this.repo.create(book);
-    this.client.documents.set(docId, document);
-
-    return book;
   }
 }
 

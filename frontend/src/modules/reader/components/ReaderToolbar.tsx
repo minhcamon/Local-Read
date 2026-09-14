@@ -1,4 +1,5 @@
 import React from 'react';
+import type { ReadingTheme } from '../../../types/index.js';
 
 interface ReaderToolbarProps {
   bookTitle: string;
@@ -11,6 +12,8 @@ interface ReaderToolbarProps {
   onFitWidth: () => void;
   onBack: () => void;
   isVisible: boolean;
+  currentTheme?: ReadingTheme;
+  onThemeChange?: (theme: ReadingTheme) => void;
 }
 
 export const ReaderToolbar: React.FC<ReaderToolbarProps> = ({
@@ -24,6 +27,8 @@ export const ReaderToolbar: React.FC<ReaderToolbarProps> = ({
   onFitWidth,
   onBack,
   isVisible,
+  currentTheme = 'light',
+  onThemeChange,
 }) => {
   return (
     <div
@@ -31,11 +36,11 @@ export const ReaderToolbar: React.FC<ReaderToolbarProps> = ({
         ...styles.toolbar,
         opacity: isVisible ? 1 : 0,
         pointerEvents: isVisible ? 'auto' : 'none',
-        transform: isVisible ? 'translateY(0)' : 'translateY(-10px)',
+        transform: isVisible ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(-10px)',
       }}
     >
       <div style={styles.left}>
-        <button style={styles.backBtn} onClick={onBack}>
+        <button style={styles.backBtn} onClick={onBack} title="Back to Library">
           ← Library
         </button>
         <span style={styles.bookTitle} title={bookTitle}>
@@ -49,6 +54,7 @@ export const ReaderToolbar: React.FC<ReaderToolbarProps> = ({
           style={styles.navBtn}
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage <= 1}
+          title="Previous Page (← / PageUp)"
         >
           ‹
         </button>
@@ -72,13 +78,52 @@ export const ReaderToolbar: React.FC<ReaderToolbarProps> = ({
           style={styles.navBtn}
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage >= totalPages}
+          title="Next Page (→ / Space / PageDown)"
         >
           ›
         </button>
       </div>
 
-      {/* Zoom & Viewport Controls */}
+      {/* Theme & Zoom Controls */}
       <div style={styles.right}>
+        {onThemeChange && (
+          <div style={styles.themeGroup}>
+            <button
+              style={{
+                ...styles.themeBtn,
+                border: currentTheme === 'light' ? '1.5px solid var(--accent-color)' : '1px solid var(--border-color)',
+                backgroundColor: '#FFFFFF',
+              }}
+              onClick={() => onThemeChange('light')}
+              title="Light Theme"
+            >
+              ☀️
+            </button>
+            <button
+              style={{
+                ...styles.themeBtn,
+                border: currentTheme === 'sepia' ? '1.5px solid var(--accent-color)' : '1px solid var(--border-color)',
+                backgroundColor: '#FBF0D9',
+              }}
+              onClick={() => onThemeChange('sepia')}
+              title="Sepia Theme"
+            >
+              📜
+            </button>
+            <button
+              style={{
+                ...styles.themeBtn,
+                border: currentTheme === 'dark' ? '1.5px solid var(--accent-color)' : '1px solid var(--border-color)',
+                backgroundColor: '#1E1E1E',
+              }}
+              onClick={() => onThemeChange('dark')}
+              title="Dark Theme"
+            >
+              🌙
+            </button>
+          </div>
+        )}
+
         <button style={styles.zoomBtn} onClick={onZoomOut} title="Zoom Out (Ctrl -)">
           −
         </button>
@@ -87,7 +132,7 @@ export const ReaderToolbar: React.FC<ReaderToolbarProps> = ({
           +
         </button>
         <button style={styles.fitWidthBtn} onClick={onFitWidth} title="Fit to Width (W)">
-          ↔ Fit Width
+          ↔ Fit
         </button>
       </div>
     </div>
@@ -102,16 +147,16 @@ const styles: Record<string, React.CSSProperties> = {
     transform: 'translateX(-50%)',
     zIndex: 50,
     backgroundColor: 'var(--bg-toolbar)',
-    backdropFilter: 'blur(8px)',
+    backdropFilter: 'blur(10px)',
     borderRadius: '10px',
     padding: '8px 16px',
-    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
+    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
     border: '1px solid var(--border-color)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '90%',
-    maxWidth: '900px',
+    maxWidth: '920px',
     transition: 'opacity 250ms ease, transform 250ms ease',
   },
   left: {
@@ -126,14 +171,16 @@ const styles: Record<string, React.CSSProperties> = {
     backgroundColor: 'var(--bg-app)',
     color: 'var(--text-primary)',
     fontSize: '0.85rem',
+    fontWeight: 500,
   },
   bookTitle: {
     fontSize: '0.9rem',
     fontWeight: 600,
-    maxWidth: '220px',
+    maxWidth: '200px',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
+    color: 'var(--text-primary)',
   },
   center: {
     display: 'flex',
@@ -177,6 +224,23 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'flex-end',
     flex: 1,
   },
+  themeGroup: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px',
+    marginRight: '6px',
+  },
+  themeBtn: {
+    width: '24px',
+    height: '24px',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '11px',
+    cursor: 'pointer',
+    padding: 0,
+  },
   zoomBtn: {
     width: '26px',
     height: '26px',
@@ -187,8 +251,9 @@ const styles: Record<string, React.CSSProperties> = {
   },
   zoomLabel: {
     fontSize: '0.8rem',
-    minWidth: '40px',
+    minWidth: '38px',
     textAlign: 'center',
+    color: 'var(--text-primary)',
   },
   fitWidthBtn: {
     backgroundColor: 'var(--bg-app)',

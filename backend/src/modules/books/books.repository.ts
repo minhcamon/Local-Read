@@ -1,34 +1,61 @@
-import type { BookEntity } from '../../database/schema/index.js';
-import { db, DatabaseClient } from '../../database/client.js';
+import { eq, desc } from 'drizzle-orm';
+import { db, type AppDatabase } from '../../database/client.js';
+import { books, documents, type BookEntity, type NewBookEntity, type NewDocumentEntity } from '../../database/schema/index.js';
 
 export class BooksRepository {
-  constructor(private readonly client: DatabaseClient = db) {}
+  constructor(private readonly client: AppDatabase = db) {}
 
-  public async findAll(): Promise<BookEntity[]> {
-    return Array.from(this.client.books.values()).sort(
-      (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-    );
+  public async findAll() {
+    return this.client.query.books.findMany({
+      orderBy: [desc(books.updatedAt)],
+      with: {
+        documents: {
+          with: {
+            progress: true,
+          },
+        },
+      },
+    });
   }
 
-  public async findById(id: string): Promise<BookEntity | null> {
-    return this.client.books.get(id) || null;
+  public async findById(id: string) {
+    return this.client.query.books.findFirst({
+      where: eq(books.id, id),
+      with: {
+        documents: {
+          with: {
+            progress: true,
+            highlights: true,
+          },
+        },
+      },
+    });
   }
 
-  public async create(book: BookEntity): Promise<BookEntity> {
-    this.client.books.set(book.id, book);
-    return book;
+  public async createWithDocument(data: {
+    book: NewBookEntity;
+    document: NewDocumentEntity;
+  }) {
+    return this.client.transaction(async (tx: any) => {
+      await tx.insert(books).values(data.book);
+      await tx.insert(documents).values(data.document);
+      return { book: data.book, document: data.document };
+    });
   }
 
   public async update(id: string, updates: Partial<BookEntity>): Promise<BookEntity | null> {
-    const existing = this.client.books.get(id);
-    if (!existing) return null;
-    const updated = { ...existing, ...updates, updatedAt: new Date().toISOString() };
-    this.client.books.set(id, updated);
-    return updated;
+    const updated = await this.client
+      .update(books)
+      .set({ ...updates, updatedAt: new Date().toISOString() })
+      .where(eq(books.id, id))
+      .returning();
+
+    return updated[0] || null;
   }
 
   public async delete(id: string): Promise<boolean> {
-    return this.client.books.delete(id);
+    const res = await this.client.delete(books).where(eq(books.id, id));
+    return res.rowsAffected > 0;
   }
 }
 

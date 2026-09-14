@@ -35,6 +35,7 @@ export interface Book {
   createdAt: string;
   updatedAt: string;
   documentCount: number;
+  documents?: DocumentSummary[];
   lastProgress?: {
     percentage: number;
     updatedAt: string;

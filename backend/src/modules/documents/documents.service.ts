@@ -1,20 +1,25 @@
 import type { Readable } from 'node:stream';
-import type { DocumentEntity } from '../../database/schema/index.js';
-import { db, DatabaseClient } from '../../database/client.js';
+import { eq } from 'drizzle-orm';
+import { db, type AppDatabase } from '../../database/client.js';
+import { documents, type DocumentEntity } from '../../database/schema/index.js';
 import { documentStorage, LocalFileStorageService } from '../../storage/local-file-storage.service.js';
 import { NotFoundError } from '../../common/errors/AppError.js';
 
 export class DocumentsService {
   constructor(
     private readonly storage: LocalFileStorageService = documentStorage,
-    private readonly client: DatabaseClient = db
+    private readonly client: AppDatabase = db
   ) {}
 
   public async getDocumentById(id: string): Promise<DocumentEntity> {
-    const document = this.client.documents.get(id);
+    const document = await this.client.query.documents.findFirst({
+      where: eq(documents.id, id),
+    });
+
     if (!document) {
       throw new NotFoundError(`Document with ID "${id}" not found`);
     }
+
     return document;
   }
 

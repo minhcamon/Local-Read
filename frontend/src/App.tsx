@@ -34,7 +34,12 @@ export function App() {
       )}
 
       {activeBookId ? (
-        <ReaderPage bookId={activeBookId} onBack={handleBackToLibrary} />
+        <ReaderPage
+          bookId={activeBookId}
+          onBack={handleBackToLibrary}
+          currentTheme={theme}
+          onThemeChange={setTheme}
+        />
       ) : (
         <LibraryPage
           onSelectBook={handleOpenBook}

@@ -1,0 +1,51 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Book {
+  id          String     @id @default(uuid())
+  title       String
+  author      String?
+  description String?
+  coverUrl    String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  documents   Document[]
+}
+
+model Document {
+  id            String           @id @default(uuid())
+  bookId        String
+  book          Book             @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  format        String           @default("PDF")
+  filePath      String
+  fileSizeBytes Int
+  checksum      String?
+  createdAt     DateTime         @default(now())
+  progress      ReadingProgress?
+  highlights    Highlight[]
+}
+
+model ReadingProgress {
+  id         String   @id @default(uuid())
+  documentId String   @unique
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  location   String   // Stored as JSON string: { type: 'pdf_page', value: { pageNumber, totalPages } }
+  percentage Int      @default(0)
+  updatedAt  DateTime @updatedAt
+}
+
+model Highlight {
+  id          String   @id @default(uuid())
+  documentId  String
+  document    Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  location    String   // Stored as JSON string: { type: 'pdf_page', value: object }
+  color       String   @default("#FACC15")
+  textContent String
+  createdAt   DateTime @default(now())
+}
