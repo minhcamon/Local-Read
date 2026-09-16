@@ -21,14 +21,14 @@ export class LocalFileStorageService implements IDocumentStorageService {
   }
 
   public resolveSafePath(relativePath: string): string {
-    const normalized = path.normalize(relativePath).replace(/^(\.\.(\/|\\|$))+/, '');
-    const absolutePath = path.resolve(this.baseDir, normalized);
+    const safePath = path.resolve(this.baseDir, relativePath);
+    const resolvedBase = path.resolve(this.baseDir);
 
-    if (!absolutePath.startsWith(this.baseDir)) {
+    if (!safePath.startsWith(resolvedBase + path.sep) && safePath !== resolvedBase) {
       throw new SecurityError('Access denied: Path traversal attempt detected');
     }
 
-    return absolutePath;
+    return safePath;
   }
 
   public async saveFile(originalName: string, buffer: Buffer): Promise<StoredFileInfo> {

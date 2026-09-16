@@ -1,152 +1,129 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { Book } from '../../../types/index.js';
 
 interface BookCardProps {
   book: Book;
-  onOpen: (bookId: string) => void;
+  onSelect: (bookId: string) => void;
+  onDelete?: (bookId: string) => void;
 }
 
-export const BookCard: React.FC<BookCardProps> = ({ book, onOpen }) => {
-  const percentage = book.lastProgress?.percentage ?? 0;
-  const isReading = percentage > 0 && percentage < 100;
-  const isCompleted = percentage >= 100;
+export const BookCard: React.FC<BookCardProps> = ({ book, onSelect, onDelete }) => {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const progressPercent = book.progressPercent ?? 0;
+  const isCompleted = progressPercent >= 100 || book.category === 'finished';
+  const isUnstarted = progressPercent === 0 && book.category === 'saved';
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (window.confirm(`Bạn có chắc chắn muốn xóa cuốn sách "${book.title}" khỏi thư viện?`)) {
+      setIsDeleting(true);
+      onDelete?.(book.id);
+    }
+  };
 
   return (
-    <div style={styles.card}>
-      {/* Book Cover Placeholder or Image */}
-      <div style={styles.coverArea} onClick={() => onOpen(book.id)}>
+    <article
+      onClick={() => onSelect(book.id)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(book.id);
+        }
+      }}
+      tabIndex={0}
+      className={`group relative flex flex-col cursor-pointer book-card focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded p-1 transition-opacity ${
+        isDeleting ? 'opacity-40 pointer-events-none' : ''
+      }`}
+    >
+      {/* Book Cover Container with Spine Shadow and Archival Border */}
+      <div className="relative w-full aspect-[2/3] mb-3.5 overflow-hidden rounded-[2px] bg-surface-container shadow-sm border border-outline-variant/30 transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-md">
         {book.coverUrl ? (
-          <img src={book.coverUrl} alt={book.title} style={styles.coverImg} />
+          <img
+            src={book.coverUrl}
+            alt={`Bìa sách ${book.title}`}
+            className="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-95"
+            loading="lazy"
+          />
         ) : (
-          <div style={styles.placeholderCover}>
-            <span style={styles.placeholderTitle}>{book.title}</span>
-            {book.author && <span style={styles.placeholderAuthor}>{book.author}</span>}
+          /* Typographic Elegant Cover Fallback */
+          <div className="w-full h-full p-4 flex flex-col justify-between bg-gradient-to-br from-surface-container-high to-surface-container-low text-primary select-none">
+            <div className="space-y-1">
+              <span className="font-label-sm text-[10px] uppercase tracking-widest text-secondary opacity-75">
+                LocalRead PDF
+              </span>
+              <h3 className="font-serif font-medium text-sm sm:text-base leading-tight line-clamp-3">
+                {book.title}
+              </h3>
+            </div>
+            <p className="font-sans text-[11px] text-on-surface-variant truncate">
+              {book.author || 'Tác giả chưa cập nhật'}
+            </p>
           </div>
         )}
 
-        {/* Status Badge */}
-        <div style={styles.badge}>
-          {isCompleted ? 'Completed' : isReading ? `Reading • ${percentage}%` : 'Unread'}
-        </div>
+        {/* Left Book Spine Shadow Gradient */}
+        <div className="absolute inset-y-0 left-0 w-2.5 bg-gradient-to-r from-black/20 to-transparent pointer-events-none" />
+
+        {/* Delete Quick Action Button (Visible on hover) */}
+        {onDelete && (
+          <button
+            onClick={handleDeleteClick}
+            title="Xóa sách khỏi thư viện"
+            className="absolute top-2 left-2 w-7 h-7 rounded-full bg-surface/90 text-error hover:bg-error hover:text-white backdrop-blur-xs border border-outline-variant/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-10"
+          >
+            <span className="material-symbols-outlined text-[15px]">delete</span>
+          </button>
+        )}
+
+        {/* Subtle bookmark tag if currently reading */}
+        {progressPercent > 0 && progressPercent < 100 && (
+          <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-surface/90 backdrop-blur-xs border border-outline-variant/40 font-label-sm text-[10px] text-primary tracking-wider font-semibold">
+            {progressPercent}%
+          </div>
+        )}
       </div>
 
-      {/* Progress Bar */}
-      <div style={styles.progressTrack}>
-        <div style={{ ...styles.progressFill, width: `${percentage}%` }} />
-      </div>
-
-      {/* Metadata & Actions */}
-      <div style={styles.meta}>
-        <h3 style={styles.bookTitle} title={book.title}>
+      {/* Book Metadata */}
+      <div className="space-y-1">
+        <h2 className="font-headline-sm text-[17px] leading-tight text-on-surface font-normal line-clamp-1 group-hover:text-primary transition-colors">
           {book.title}
-        </h3>
-        <p style={styles.bookAuthor}>{book.author || 'Unknown Author'}</p>
-
-        <button style={styles.readBtn} onClick={() => onOpen(book.id)}>
-          {isReading ? 'Continue Reading →' : 'Read Book →'}
-        </button>
+        </h2>
+        <p className="font-label-md text-label-md text-on-surface-variant line-clamp-1">
+          {book.author || 'Tác giả chưa cập nhật'}
+        </p>
       </div>
-    </div>
-  );
-};
 
-const styles: Record<string, React.CSSProperties> = {
-  card: {
-    backgroundColor: 'var(--bg-surface)',
-    borderRadius: '10px',
-    border: '1px solid var(--border-color)',
-    boxShadow: 'var(--card-shadow)',
-    overflow: 'hidden',
-    display: 'flex',
-    flexDirection: 'column',
-    transition: 'transform 150ms ease',
-  },
-  coverArea: {
-    aspectRatio: '3 / 4',
-    backgroundColor: 'var(--bg-app)',
-    position: 'relative',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  coverImg: {
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover',
-  },
-  placeholderCover: {
-    padding: '24px',
-    textAlign: 'center',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    height: '100%',
-  },
-  placeholderTitle: {
-    fontSize: '1rem',
-    fontWeight: 600,
-    color: 'var(--text-primary)',
-    display: '-webkit-box',
-    WebkitLineClamp: 3,
-    WebkitBoxOrient: 'vertical',
-    overflow: 'hidden',
-  },
-  placeholderAuthor: {
-    fontSize: '0.8rem',
-    color: 'var(--text-secondary)',
-    marginTop: '8px',
-  },
-  badge: {
-    position: 'absolute',
-    top: '10px',
-    right: '10px',
-    backgroundColor: 'rgba(0, 0, 0, 0.65)',
-    color: '#FFFFFF',
-    fontSize: '0.75rem',
-    padding: '3px 8px',
-    borderRadius: '4px',
-    backdropFilter: 'blur(4px)',
-  },
-  progressTrack: {
-    height: '4px',
-    backgroundColor: 'var(--border-color)',
-    width: '100%',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: 'var(--accent-color)',
-    transition: 'width 200ms ease',
-  },
-  meta: {
-    padding: '14px',
-    display: 'flex',
-    flexDirection: 'column',
-    flex: 1,
-  },
-  bookTitle: {
-    fontSize: '0.95rem',
-    fontWeight: 600,
-    color: 'var(--text-primary)',
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-  },
-  bookAuthor: {
-    fontSize: '0.8rem',
-    color: 'var(--text-secondary)',
-    marginTop: '4px',
-    marginBottom: '12px',
-  },
-  readBtn: {
-    marginTop: 'auto',
-    backgroundColor: 'var(--bg-app)',
-    color: 'var(--accent-color)',
-    border: '1px solid var(--border-color)',
-    padding: '8px',
-    borderRadius: '6px',
-    fontSize: '0.85rem',
-    fontWeight: 500,
-  },
+      {/* Reading Progress Line */}
+      <div
+        className={`mt-3 w-full h-[2px] bg-surface-container-highest rounded-full overflow-hidden ${
+          isUnstarted ? 'opacity-40' : ''
+        }`}
+        title={
+          isCompleted
+            ? 'Đã hoàn thành (100%)'
+            : isUnstarted
+            ? 'Chưa bắt đầu đọc'
+            : `Tiến độ: ${progressPercent}% (trang ${book.currentPage || 1}/${book.totalPages || 1})`
+        }
+      >
+        <div
+          className={`h-full rounded-full transition-all duration-500 ${
+            isCompleted
+              ? 'bg-secondary w-full'
+              : isUnstarted
+              ? 'w-0'
+              : 'bg-primary-container'
+          }`}
+          style={{ width: isCompleted ? '100%' : `${progressPercent}%` }}
+        />
+      </div>
+      <span className="sr-only">
+        {isCompleted
+          ? 'Đã hoàn thành'
+          : isUnstarted
+          ? 'Chưa đọc'
+          : `Đã đọc ${progressPercent}%`}
+      </span>
+    </article>
+  );
 };

@@ -13,6 +13,8 @@ export class ReadingProgressController {
   private registerRoutes(): void {
     this.router.get('/:documentId', this.getProgress.bind(this));
     this.router.put('/:documentId', this.saveProgress.bind(this));
+    this.router.get('/:documentId/progress', this.getProgress.bind(this));
+    this.router.put('/:documentId/progress', this.saveProgress.bind(this));
   }
 
   public async getProgress(req: Request, res: Response, next: NextFunction): Promise<void> {

@@ -5,10 +5,12 @@ export const CreateHighlightSchema = z.object({
     type: z.literal('pdf_page'),
     value: z.object({
       pageNumber: z.number().int().min(1),
+      rects: z.array(z.any()).optional(),
     }),
   }),
-  color: z.string().regex(/^#([A-Fa-f0-9]{6})$/, 'Color must be a valid 6-character hex').default('#FACC15'),
+  color: z.string().default('#FACC15'),
   textContent: z.string().min(1, 'Text content cannot be empty').max(5000),
+  note: z.string().max(2000).optional().nullable(),
 });
 
 export type CreateHighlightDto = z.infer<typeof CreateHighlightSchema>;
@@ -22,5 +24,6 @@ export interface HighlightResponseDto {
   };
   color: string;
   textContent: string;
+  note?: string | null;
   createdAt: string;
 }

@@ -1,79 +1,103 @@
-/* Reading Design System & Themes for LocalRead */
+@import "tailwindcss";
+@config "../tailwind.config.js";
 
-:root {
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@layer base {
+  :root {
+    --bg-app: #fff8f5;
+    --bg-surface: #fff8f5;
+    --bg-card: #ffffff;
+    --border-color: #e6dfd5;
+    --text-primary: #1e1b18;
+    --text-secondary: #6c5b51;
+    --accent-color: #3a4d39;
+    --accent-hover: #243624;
+    --highlight-color: rgba(140, 109, 88, 0.25);
+  }
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  body.theme-light {
+    --bg-app: #fff8f5;
+    --bg-surface: #fff8f5;
+    --bg-card: #ffffff;
+    --border-color: #e6dfd5;
+    --text-primary: #1e1b18;
+    --text-secondary: #6c5b51;
+    --accent-color: #3a4d39;
+    --accent-hover: #243624;
+    --highlight-color: rgba(140, 109, 88, 0.25);
+  }
+
+  body.theme-ivory {
+    --bg-app: #fbf8f3;
+    --bg-surface: #f5ece7;
+    --bg-card: #fbf8f3;
+    --border-color: #ded5c8;
+    --text-primary: #2c2825;
+    --text-secondary: #736b63;
+    --accent-color: #3a4d39;
+    --accent-hover: #243624;
+    --highlight-color: rgba(140, 109, 88, 0.25);
+  }
+
+  body.theme-sepia {
+    --bg-app: #f4e8c1;
+    --bg-surface: #fbf0d9;
+    --bg-card: #fdf5e2;
+    --border-color: #e5d5b3;
+    --text-primary: #433422;
+    --text-secondary: #78644e;
+    --accent-color: #6c5b51;
+    --accent-hover: #4a3b32;
+    --highlight-color: rgba(245, 158, 11, 0.25);
+  }
+
+  body.theme-dark {
+    --bg-app: #141414;
+    --bg-surface: #1e1e1e;
+    --bg-card: #242424;
+    --border-color: #333333;
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --accent-color: #b7cdb2;
+    --accent-hover: #d2e9ce;
+    --highlight-color: rgba(210, 233, 206, 0.25);
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: var(--bg-app);
+    color: var(--text-primary);
+    font-family: 'Newsreader', serif;
+    transition: background-color 200ms ease, color 200ms ease;
+  }
+
+  /* Material symbols standard configuration */
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    user-select: none;
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1;
+  }
+
+  .material-symbols-outlined.fill {
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
 }
 
-/* Light Theme (Default Day Reading) */
-body.theme-light {
-  --bg-app: #F8F9FA;
-  --bg-surface: #FFFFFF;
-  --bg-toolbar: rgba(255, 255, 255, 0.85);
-  --border-color: #E2E8F0;
-  --text-primary: #1E293B;
-  --text-secondary: #64748B;
-  --accent-color: #2563EB;
-  --accent-hover: #1D4ED8;
-  --highlight-color: rgba(250, 204, 21, 0.35);
-  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+/* Custom Scrollbar for Quiet Aesthetic */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
-
-/* Sepia Theme (Warm Parchment / Long Reading) */
-body.theme-sepia {
-  --bg-app: #F4E8C1;
-  --bg-surface: #FBF0D9;
-  --bg-toolbar: rgba(251, 240, 217, 0.85);
-  --border-color: #E5D5B3;
-  --text-primary: #433422;
-  --text-secondary: #78644E;
-  --accent-color: #B45309;
-  --accent-hover: #92400E;
-  --highlight-color: rgba(245, 158, 11, 0.35);
-  --card-shadow: 0 4px 12px rgba(67, 52, 34, 0.08);
+::-webkit-scrollbar-track {
+  background: transparent;
 }
-
-/* Dark Theme (Night Reading / Low Emission) */
-body.theme-dark {
-  --bg-app: #121212;
-  --bg-surface: #1E1E1E;
-  --bg-toolbar: rgba(30, 30, 30, 0.85);
-  --border-color: #334155;
-  --text-primary: #E2E8F0;
-  --text-secondary: #94A3B8;
-  --accent-color: #38BDF8;
-  --accent-hover: #0284C7;
-  --highlight-color: rgba(234, 179, 8, 0.35);
-  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+::-webkit-scrollbar-thumb {
+  background: rgba(108, 91, 81, 0.2);
+  border-radius: 9999px;
 }
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  background-color: var(--bg-app);
-  color: var(--text-primary);
-  min-height: 100vh;
-  transition: background-color 200ms ease, color 200ms ease;
-}
-
-a {
-  color: var(--accent-color);
-  text-decoration: none;
-}
-
-button {
-  cursor: pointer;
-  border: none;
-  background: none;
-  font-family: inherit;
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(108, 91, 81, 0.4);
 }

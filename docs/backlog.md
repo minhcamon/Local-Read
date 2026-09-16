@@ -14,6 +14,8 @@
 | ENH-003 | Full-text Document Search | Backlog | Uncommitted | Requires indexing strategy |
 | ENH-004 | Tags and Collections | Backlog | Uncommitted | Categorization for large libraries |
 | ENH-005 | Multiple Highlight Colors & Notes | Backlog | Uncommitted | Simple 1-color highlight in MVP |
+| ENH-006 | Contextual Glossary & Term Definitions | Backlog | Uncommitted | Mock tab in reader notes drawer |
+| ENH-007 | Saved Quotes Management | Backlog | Uncommitted | Mock tab in reader notes drawer |
 
 ---
 
@@ -49,3 +51,13 @@
   - *Category:* Backlog
   - *Details:* Allow yellow, green, pink highlights and attaching textual notes.
   - *Reason Recorded:* `SCOPE.md §4`.
+
+- [ ] **[ENH-006] Contextual Glossary & Term Definitions**:
+  - *Category:* Backlog
+  - *Details:* Dedicated dictionary and glossary system for literary and technical terms.
+  - *Reason Recorded:* Outside MVP v1 core loop (`SCOPE.md §1`).
+
+- [ ] **[ENH-007] Saved Quotes Management**:
+  - *Category:* Backlog
+  - *Details:* Extracting and managing stand-alone quotes independent of continuous text highlight markers.
+  - *Reason Recorded:* Outside MVP v1 core loop (`SCOPE.md §1`).

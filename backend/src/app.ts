@@ -39,6 +39,8 @@ export function createApp(): Express {
   // Domain API Routes
   app.use('/api/books', booksController.router);
   app.use('/api/documents', documentsController.router);
+  app.use('/api/documents', readingProgressController.router);
+  app.use('/api/documents', highlightsController.router);
   app.use('/api/progress', readingProgressController.router);
   app.use('/api/highlights', highlightsController.router);
 

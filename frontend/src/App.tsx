@@ -8,10 +8,12 @@ export function App() {
   const [theme, setTheme] = useState<ReadingTheme>('light');
   const [activeBookId, setActiveBookId] = useState<string | null>(null);
   const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
+  const [activeNav, setActiveNav] = useState<'bookshelf' | 'recent' | 'notes'>('bookshelf');
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Apply theme class to <body>
   useEffect(() => {
-    document.body.className = `theme-${theme}`;
+    document.body.className = `theme-${theme} bg-surface font-body-md text-on-surface antialiased`;
   }, [theme]);
 
   const handleOpenBook = (bookId: string) => {
@@ -20,16 +22,28 @@ export function App() {
 
   const handleBackToLibrary = () => {
     setActiveBookId(null);
+    setActiveNav('bookshelf');
+  };
+
+  const handleNavChange = (nav: 'bookshelf' | 'recent' | 'notes') => {
+    setActiveNav(nav);
+    if (nav === 'bookshelf') {
+      setActiveBookId(null);
+    }
   };
 
   return (
-    <div>
+    <div className="min-h-screen bg-surface text-on-surface">
       {/* Hide global header when in reader view to maximize distraction-free space */}
       {!activeBookId && (
         <Header
           currentTheme={theme}
           onThemeChange={setTheme}
           onImportClick={() => setIsImportModalOpen(true)}
+          activeNav={activeNav}
+          onNavChange={handleNavChange}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
         />
       )}
 
@@ -45,6 +59,7 @@ export function App() {
           onSelectBook={handleOpenBook}
           isImportModalOpen={isImportModalOpen}
           onCloseImportModal={() => setIsImportModalOpen(false)}
+          searchQuery={searchQuery}
         />
       )}
     </div>

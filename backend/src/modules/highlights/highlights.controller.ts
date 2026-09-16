@@ -14,6 +14,9 @@ export class HighlightsController {
     this.router.get('/:documentId', this.getHighlights.bind(this));
     this.router.post('/:documentId', this.createHighlight.bind(this));
     this.router.delete('/:documentId/:highlightId', this.deleteHighlight.bind(this));
+    this.router.get('/:documentId/highlights', this.getHighlights.bind(this));
+    this.router.post('/:documentId/highlights', this.createHighlight.bind(this));
+    this.router.delete('/:documentId/highlights/:highlightId', this.deleteHighlight.bind(this));
   }
 
   public async getHighlights(req: Request, res: Response, next: NextFunction): Promise<void> {

@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import multer from 'multer';
 import { booksService, BooksService } from './books.service.js';
-import { ImportBookSchema } from './dto/index.js';
+import { ImportBookSchema, GetBooksQuerySchema } from './dto/index.js';
 import { BadRequestError } from '../../common/errors/AppError.js';
 
 const upload = multer({ limits: { fileSize: 100 * 1024 * 1024 } });
@@ -16,12 +16,15 @@ export class BooksController {
   private registerRoutes(): void {
     this.router.get('/', this.getAllBooks.bind(this));
     this.router.get('/:id', this.getBookById.bind(this));
+    this.router.delete('/:id', this.deleteBook.bind(this));
     this.router.post('/import', upload.single('file'), this.importBook.bind(this));
   }
 
-  public async getAllBooks(_req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async getAllBooks(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const books = await this.service.getAllBooks();
+      const queryParsed = GetBooksQuerySchema.safeParse(req.query);
+      const query = queryParsed.success ? queryParsed.data : undefined;
+      const books = await this.service.getAllBooks(query);
       res.json({ data: books });
     } catch (err) {
       next(err);
@@ -32,6 +35,15 @@ export class BooksController {
     try {
       const book = await this.service.getBookById(req.params.id);
       res.json({ data: book });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async deleteBook(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      await this.service.deleteBook(req.params.id);
+      res.json({ success: true, message: 'Book and associated documents deleted successfully' });
     } catch (err) {
       next(err);
     }
