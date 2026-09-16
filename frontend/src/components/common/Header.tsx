@@ -7,8 +7,8 @@ interface HeaderProps {
   currentTheme: ReadingTheme;
   onThemeChange: (theme: ReadingTheme) => void;
   onImportClick?: () => void;
-  activeNav?: 'bookshelf' | 'recent' | 'notes';
-  onNavChange?: (nav: 'bookshelf' | 'recent' | 'notes') => void;
+  activeNav?: 'bookshelf' | 'thoughts' | 'connections';
+  onNavChange?: (nav: 'bookshelf' | 'thoughts' | 'connections') => void;
   searchQuery?: string;
   onSearchChange?: (q: string) => void;
 }
@@ -33,10 +33,30 @@ export const Header: React.FC<HeaderProps> = ({
     setIsSearchOpen(false);
   };
 
+  const handleToggleTheme = () => {
+    // Cycle through themes: light -> ivory -> sepia -> dark -> light
+    const themes: ReadingTheme[] = ['light', 'ivory', 'sepia', 'dark'];
+    const nextIdx = (themes.indexOf(currentTheme) + 1) % themes.length;
+    onThemeChange(themes[nextIdx]);
+  };
+
+  const getThemeIcon = () => {
+    switch (currentTheme) {
+      case 'dark':
+        return 'dark_mode';
+      case 'sepia':
+        return 'menu_book';
+      case 'ivory':
+        return 'auto_stories';
+      default:
+        return 'light_mode';
+    }
+  };
+
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 bg-surface/95 backdrop-blur-sm border-b border-outline-variant/40 transition-colors">
-        <div className="h-16 max-w-5xl mx-auto px-6 flex items-center justify-between">
+      <header className="fixed top-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur-sm border-b border-outline-variant/30 transition-colors select-none">
+        <div className="h-16 max-w-6xl mx-auto px-6 flex items-center justify-between">
           {/* Brand Logo */}
           <button
             onClick={() => onNavChange?.('bookshelf')}
@@ -52,106 +72,79 @@ export const Header: React.FC<HeaderProps> = ({
             </span>
           </button>
 
-          {/* Navigation Links */}
-          <nav className="flex items-center gap-6 font-label-lg text-label-lg">
+          {/* Core Progression Navigation (Read -> Understand -> Connect) */}
+          <nav className="flex items-center gap-8 font-label-md text-sm">
             <button
               onClick={() => onNavChange?.('bookshelf')}
-              className={`transition-colors font-medium pb-0.5 ${
+              className={`pb-1 transition-all ${
                 activeNav === 'bookshelf'
-                  ? 'text-primary border-b-2 border-primary font-medium'
-                  : 'text-on-surface-variant hover:text-on-surface border-b-2 border-transparent'
+                  ? 'text-primary border-b border-primary font-medium'
+                  : 'text-on-surface-variant hover:text-on-surface border-b border-transparent'
               }`}
             >
               Tủ sách
             </button>
             <button
-              onClick={() => onNavChange?.('recent')}
-              className={`transition-colors pb-0.5 ${
-                activeNav === 'recent'
-                  ? 'text-primary border-b-2 border-primary font-medium'
-                  : 'text-on-surface-variant hover:text-on-surface border-b-2 border-transparent'
+              onClick={() => onNavChange?.('thoughts')}
+              className={`pb-1 transition-all ${
+                activeNav === 'thoughts'
+                  ? 'text-primary border-b border-primary font-medium'
+                  : 'text-on-surface-variant hover:text-on-surface border-b border-transparent'
               }`}
             >
-              Đọc gần đây
+              Ghi chú
             </button>
             <button
-              onClick={() => onNavChange?.('notes')}
-              className={`transition-colors pb-0.5 ${
-                activeNav === 'notes'
-                  ? 'text-primary border-b-2 border-primary font-medium'
-                  : 'text-on-surface-variant hover:text-on-surface border-b-2 border-transparent'
+              onClick={() => onNavChange?.('connections')}
+              className={`pb-1 transition-all ${
+                activeNav === 'connections'
+                  ? 'text-primary border-b border-primary font-medium'
+                  : 'text-on-surface-variant hover:text-on-surface border-b border-transparent'
               }`}
             >
-              Ghi chép
+              Mối nối
             </button>
           </nav>
 
-          {/* Actions: Search & Profile & Quick Add */}
+          {/* Right Utilities: Search, Ex-Libris '+ Thêm sách', Theme Toggle, Monogram Stamp */}
           <div className="flex items-center gap-3">
+            {/* Search Trigger */}
             <button
-              aria-label="Tìm kiếm sách"
+              aria-label="Tìm kiếm"
               onClick={() => setIsSearchOpen(true)}
-              className="p-2 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
-              title="Tìm kiếm sách hoặc tác giả"
+              className="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors"
+              title="Tìm kiếm sách hoặc tác giả (Ấn /)"
             >
-              <span className="material-symbols-outlined text-[20px]">search</span>
+              <span className="material-symbols-outlined text-[19px]">search</span>
             </button>
 
-            {/* Quick Import button in header */}
+            {/* Ex-Libris / Literary Tag '+ Thêm sách' */}
             {onImportClick && (
-              <Button
-                variant="dashed"
-                size="sm"
+              <button
                 onClick={onImportClick}
-                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 text-xs"
+                className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xs text-xs font-serif italic text-primary border border-dashed border-outline-variant/70 hover:border-primary hover:bg-surface-container transition-all"
+                title="Thêm tệp PDF vào thư viện"
               >
-                <span className="material-symbols-outlined text-[16px]">add</span>
-                <span>Thêm sách</span>
-              </Button>
+                <span className="material-symbols-outlined text-[14px]">add</span>
+                <span className="tracking-wide">Thêm sách</span>
+              </button>
             )}
 
-            {/* Reading Theme Toggle */}
-            <div className="flex items-center bg-surface-container rounded p-0.5 border border-outline-variant/30">
-              <button
-                onClick={() => onThemeChange('light')}
-                className={`p-1.5 rounded transition-all ${
-                  currentTheme === 'light' || currentTheme === 'ivory'
-                    ? 'bg-surface-container-lowest text-primary shadow-sm'
-                    : 'text-on-surface-variant hover:text-on-surface'
-                }`}
-                title="Tông giấy sáng / ngà ấm"
-              >
-                <span className="material-symbols-outlined text-[16px]">light_mode</span>
-              </button>
-              <button
-                onClick={() => onThemeChange('sepia')}
-                className={`p-1.5 rounded transition-all ${
-                  currentTheme === 'sepia'
-                    ? 'bg-surface-container-lowest text-secondary shadow-sm'
-                    : 'text-on-surface-variant hover:text-on-surface'
-                }`}
-                title="Tông giấy Sepia cổ điển"
-              >
-                <span className="material-symbols-outlined text-[16px]">menu_book</span>
-              </button>
-              <button
-                onClick={() => onThemeChange('dark')}
-                className={`p-1.5 rounded transition-all ${
-                  currentTheme === 'dark'
-                    ? 'bg-surface-container-lowest text-primary shadow-sm'
-                    : 'text-on-surface-variant hover:text-on-surface'
-                }`}
-                title="Tông đọc đêm tĩnh mịch"
-              >
-                <span className="material-symbols-outlined text-[16px]">dark_mode</span>
-              </button>
-            </div>
+            {/* Delicate Theme toggle icon */}
+            <button
+              onClick={handleToggleTheme}
+              className="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors"
+              title={`Chuyển giao diện đọc (Hiện tại: ${currentTheme})`}
+            >
+              <span className="material-symbols-outlined text-[19px]">{getThemeIcon()}</span>
+            </button>
 
-            {/* Avatar / Profile indicator */}
-            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary">
-              <span className="material-symbols-outlined text-on-primary text-[18px]">
-                person
-              </span>
+            {/* Monogram Library Stamp Avatar */}
+            <div
+              title="Thư viện cá nhân"
+              className="w-6 h-6 rounded-xs border border-primary/50 bg-surface-container-highest/60 flex items-center justify-center text-primary text-[10px] font-serif font-bold tracking-wider select-none shadow-2xs"
+            >
+              LR
             </div>
           </div>
         </div>
@@ -161,9 +154,9 @@ export const Header: React.FC<HeaderProps> = ({
       <Dialog open={isSearchOpen} onOpenChange={setIsSearchOpen}>
         <DialogContent className="max-w-md bg-surface-container-lowest border-outline-variant/40">
           <DialogHeader>
-            <DialogTitle className="font-headline-sm">Tìm kiếm trong tủ sách</DialogTitle>
-            <DialogDescription>
-              Tìm kiếm nhanh theo tựa đề tác phẩm, tác giả hoặc nội dung ghi chép.
+            <DialogTitle className="font-headline-sm text-primary">Tìm kiếm trong tủ sách</DialogTitle>
+            <DialogDescription className="text-on-surface-variant font-sans">
+              Tìm kiếm nhanh theo tựa đề tác phẩm hoặc tác giả.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSearchSubmit} className="space-y-4 pt-2">

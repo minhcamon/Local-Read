@@ -1,3 +1,16 @@
+/**
+ * LocalRead Centralized Typography Configuration
+ * Thay đổi font tại đây sẽ tự động cập nhật toàn bộ ứng dụng.
+ */
+const FONTS = {
+  // Font chính cho Tiêu đề, Bìa sách, Thư viện và Nội dung đọc
+  serif: ["Fraunces", "Georgia", "serif"],
+  // Font phụ cho UI labels, buttons, navigation
+  sans: ["Plus Jakarta Sans", "Inter", "-apple-system", "sans-serif"],
+  // Font typewriter cho mã số, tỷ lệ phần trăm, số trang cổ điển
+  mono: ["Courier Prime", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
+};
+
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: ["class"],
@@ -101,20 +114,22 @@ export default {
         full: "9999px",
       },
       fontFamily: {
-        display: ["Newsreader", "serif"],
-        body: ["Newsreader", "serif"],
-        sans: ["Plus Jakarta Sans", "Inter", "sans-serif"],
-        label: ["Plus Jakarta Sans", "sans-serif"],
-        "display-lg": ["Newsreader", "serif"],
-        "headline-lg": ["Newsreader", "serif"],
-        "headline-md": ["Newsreader", "serif"],
-        "headline-sm": ["Newsreader", "serif"],
-        "body-lg": ["Newsreader", "serif"],
-        "body-md": ["Newsreader", "serif"],
-        "body-sm": ["Plus Jakarta Sans", "sans-serif"],
-        "label-lg": ["Plus Jakarta Sans", "sans-serif"],
-        "label-md": ["Plus Jakarta Sans", "sans-serif"],
-        "label-sm": ["Plus Jakarta Sans", "sans-serif"],
+        serif: FONTS.serif,
+        display: FONTS.serif,
+        body: FONTS.serif,
+        sans: FONTS.sans,
+        label: FONTS.sans,
+        mono: FONTS.mono,
+        "display-lg": FONTS.serif,
+        "headline-lg": FONTS.serif,
+        "headline-md": FONTS.serif,
+        "headline-sm": FONTS.serif,
+        "body-lg": FONTS.serif,
+        "body-md": FONTS.serif,
+        "body-sm": FONTS.sans,
+        "label-lg": FONTS.sans,
+        "label-md": FONTS.sans,
+        "label-sm": FONTS.sans,
       },
       fontSize: {
         "display-lg": ["40px", { lineHeight: "48px", letterSpacing: "-0.01em", fontWeight: "400" }],
@@ -131,7 +146,9 @@ export default {
       boxShadow: {
         paper: "0 2px 10px rgba(44, 40, 37, 0.04), 0 1px 3px rgba(44, 40, 37, 0.02)",
         "paper-elevated": "0 8px 30px rgba(44, 40, 37, 0.06), 0 2px 6px rgba(44, 40, 37, 0.03)",
-        "book-spine": "inset 10px 0 15px -8px rgba(0, 0, 0, 0.25)",
+        "book-spine": "inset 12px 0 16px -8px rgba(0, 0, 0, 0.28)",
+        "book-tactile": "1px 1px 0px rgba(0, 0, 0, 0.1), 4px 6px 16px -2px rgba(44, 38, 34, 0.14)",
+        "book-tactile-hover": "1px 2px 0px rgba(0, 0, 0, 0.12), 8px 14px 28px -4px rgba(44, 38, 34, 0.22)",
       }
     },
   },

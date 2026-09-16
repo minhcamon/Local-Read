@@ -117,7 +117,7 @@ export const TypographyDrawer: React.FC<TypographyDrawerProps> = ({
                 : 'text-on-surface-variant hover:bg-surface-container-lowest/60'
             }`}
           >
-            Newsreader (Serif)
+            Fraunces (Serif)
           </button>
           <button
             onClick={() => onFontFamilyChange('sans')}
